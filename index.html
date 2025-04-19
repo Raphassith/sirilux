@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>สิริลักษณ์ ไอศครีม</title>
+    <link rel="icon" type="image/png" href="asset/logoBlue.png" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js"
+        integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.6/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.3/dist/sweetalert2.all.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        *::-webkit-scrollbar {
+            display: none;
+        }
+
+        * {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <!-- navbar -->
+        <nav class="navbar bg-info fixed-top" data-bs-theme="dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="./">สิริลักษณ์ ไอศครีม</a>
+            </div>
+            <div v-if="page==1" class="container-fluid">
+                <div class="d-flex flex-row" style="overflow-x: auto; cursor: pointer;">
+                    <h4 class="p-0" style="white-space: nowrap;" @click="selectcateg('all')">
+                        <span v-if="categ=='all'" class="badge text-bg-light">ทั้งหมด</span>
+                        <span v-else class="badge text-bg-info">ทั้งหมด</span>
+                    </h4>
+                    <h4 v-for="item in categories" class="p-0" style="white-space: nowrap;" @click="selectcateg(item)">
+                        <span v-if="categ==item" class="badge text-bg-light">{{item}}</span>
+                        <span v-else class="badge text-bg-info">{{item}}</span>
+                    </h4>
+                </div>
+            </div>
+        </nav>
+
+        <!-- product page -->
+        <div v-if="page==1" class="container-fluid" style="margin-top: 100px; margin-bottom: 60px;">
+            <div v-for="item in getProducts" class="mt-2">
+                <div class="card" style="position: relative;">
+                    <div class="card-body d-flex flex-row">
+                        <div class="px-1">
+                            <img :src="'https://lh3.googleusercontent.com/d/' + item.imgid"
+                                style="width: 120px; height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="px-1">
+                            <h5 class="card-title">{{item.title}}</h5>
+                        </div>
+                    </div>
+                    <a class="btn btn-info" style="position: absolute; bottom: 5px; right: 5px;"
+                        @click="selectproduct(item)">เพิ่มในตะกร้า</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- cart page -->
+        <div v-if="page==2" class="container-fluid" style="margin-top: 60px; margin-bottom: 60px;">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">รายการ</th>
+                        <th scope="col" class="text-center">จำนวน</th>
+                        <th scope="col" class="text-end">ราคา</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="entrycart">
+                        <th scope="row" colspan="4" class="text-center">ไม่พบรายการสินค้าในตะกร้า</th>
+                    </tr>
+                    <tr v-for="(item, index) in cart" style="cursor: pointer;" @click="edittiem(item, index)">
+                        <th scope="row">
+                            <img :src="'https://lh3.googleusercontent.com/d/' + item.imgid"
+                                style="width: 30px; height: 30px; object-fit: cover;">
+                        </th>
+                        <td>{{item.title}}<br />{{item.options}}</td>
+                        <td class="text-center">{{item.qty}}</td>
+                        <td class="text-end">{{setFormat(item.price*item.qty)}}</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <th scope="col" colspan="3" class="text-end">รวม</th>
+                    <th scope="col" class="text-end">{{setFormat(gettotal)}}</th>
+                </tfoot>
+            </table>
+            <div class="text-end">
+                <a v-if="entrycart" class="btn btn-info disabled me-2" aria-disabled="true">ยืนยันคำสั่งซื้อ</a>
+                <a v-else class="btn btn-info me-2">ยืนยันคำสั่งซื้อ</a>
+
+                <a v-if="entrycart" class="btn btn-danger disabled" aria-disabled="true">ยกเลิกรายการทั้งหมด</a>
+                <a v-else class="btn btn-danger" @click="clearcart">ยกเลิกรายการทั้งหมด</a>
+            </div>
+        </div>
+
+        <!-- orders page -->
+        <div v-if="page==3" class="container-fluid" style="margin-top: 60px; margin-bottom: 60px;">
+
+        </div>
+
+        <!-- Navbar Bottom -->
+        <div class="container-fluid bg-light fixed-bottom">
+            <div class="d-flex justify-content-around" style="cursor: pointer;">
+                <h1 class="pt-2" @click="selectpage(1)">
+                    <span v-if="page==1" class="badge text-bg-info">สินค้า</span>
+                    <span v-else class="badge text-bg-light">สินค้า</span>
+                </h1>
+                <h1 class="pt-2" @click="selectpage(2)">
+                    <span v-if="page==2" class="badge text-bg-info">ตะกร้า</span>
+                    <span v-else class="badge text-bg-light">ตะกร้า</span>
+                </h1>
+                <h1 class="pt-2" @click="selectpage(3)">
+                    <span v-if="page==3" class="badge text-bg-info">สั่งซื้อ</span>
+                    <span v-else class="badge text-bg-light">สั่งซื้อ</span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- productModal -->
+        <div class="modal fade" id="productModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="productModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="productModalLabel">{{product.title}}</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center"><img :src="'https://lh3.googleusercontent.com/d/' + product.imgid"
+                                style="width: 300px;"></div>
+
+                        <div class="mt-1" style="white-space: pre-wrap;">{{product.detail}}</div>
+
+                        <div v-if="product.optflv" class="mt-1">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">เลือกรสชาติ</th>
+                                        <th scope="col" class="text-end">ราคา</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in product.flavors" style="cursor: pointer;"
+                                        @click="newitem('รสชาติ '+item.flavor,item.price+product.prices)">
+                                        <th scope="row">{{index+1}}</th>
+                                        <td>{{item.flavor}}</td>
+                                        <td class="text-end">{{setFormat(item.price+product.prices)}}</td>
+                                        <td>บาท</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div v-if="product.optpkg" class="mt-1">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">เลือกขนาดบรรจุ (กรัม)</th>
+                                        <th scope="col" class="text-end">ราคา</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in product.packages" style="cursor: pointer;"
+                                        @click="newitem('ขนาด '+item.size+' กรัม',item.price+product.prices)">
+                                        <th scope="row">{{index+1}}</th>
+                                        <td>{{item.size}}</td>
+                                        <td class="text-end">{{setFormat(item.price+product.prices)}}</td>
+                                        <td>บาท</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- edititemModal -->
+        <div class="modal fade" id="edititemModal" tabindex="-1" aria-labelledby="edititemModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="edititemModalLabel">เลือกรายการ</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center mb-2">
+                            <img :src="'https://lh3.googleusercontent.com/d/' + this.item.imgid" style="width: 300px;">
+                        </div>
+                        <table class="table table-striped table-borderless table-hover">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">รายการ</th>
+                                    <td>{{this.item.title}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">ตัวเลือก</th>
+                                    <td>{{this.item.options}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">ราคา</th>
+                                    <td class="text-end">{{setFormat(this.item.price)}} บาท</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">จำนวน</th>
+                                    <td class="text-end"><input type="number" class="form-control" id="edititemqty"
+                                            value="1">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-info" @click="saveitem">บันทึก</a>
+                        <a class="btn btn-danger" @click="removeitem">ลบรายการ</a>
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- newitemModal -->
+        <div class="modal fade" id="newitemModal" tabindex="-1" aria-labelledby="newitemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="newitemModalLabel">เลือกรายการ</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped table-borderless table-hover">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">รายการ</th>
+                                    <td>{{product.title}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">ตัวเลือก</th>
+                                    <td>{{product.sltoption}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">ราคา</th>
+                                    <td class="text-end">{{setFormat(product.sltprice)}} บาท</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" style="white-space: nowrap;">จำนวน</th>
+                                    <td class="text-end"><input type="number" class="form-control" id="newitemqty"
+                                            value="1"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-info" @click="additem">บันทึก</a>
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- loadingModal -->
+        <div class="modal fade" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="loadingModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-body">
+                        <div class="ratio ratio-1x1" style="width: 100%;">
+                            <div class="spinner-border text-info" style="width: 100%; height: 100%;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <h1 class="text-center text-info">Loading...</h1>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    apiURL: 'https://script.google.com/macros/s/AKfycbxJujmqUlNN5H5aBluuv4ESnURaKXJc0NAsJFSLHhGc-zXd74N5Kekwi9QITTDXS5_W2g/exec',
+                    loadingModal: null,
+                    productModal: null,
+                    newitemModal: null,
+                    edititemModal: null,
+                    lat: 0,
+                    lng: 0,
+                    page: 1,
+                    userid: 'A001',
+                    categories: [],
+                    categ: "all",
+                    products: [],
+                    product: {},
+                    cart: [],
+                    item: {},
+                    itmind: -1,
+                    shipping: [],
+                    form: {
+
+                    },
+
+                }
+            },
+            methods: {
+                clearcart() {
+                    Swal.fire({
+                        title: "ยืนยันการลบรายการทั้งหมดในตะกร้า ?",
+                        icon: "question",
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: "ยืนยัน",
+                        confirmButtonColor: "#d33",
+                        cancelButtonText: "ปิด"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.loadingModal.show();
+                            this.cart = [];
+                            setTimeout(() => {
+                                this.loadingModal.hide();
+                            }, 1000);
+                            Swal.fire("ลบรายการเสร็จสิ้น!", "", "success");
+                        }
+                    });
+                },
+
+                removeitem() {
+                    Swal.fire({
+                        title: "ยืนยันการลบรายการ ?",
+                        icon: "question",
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: "ยืนยัน",
+                        confirmButtonColor: "#d33",
+                        cancelButtonText: "ปิด"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.loadingModal.show();
+                            let temp = [];
+                            for (let i = 0; i < this.cart.length; i++) {
+                                if (i != this.itmind) temp.push(this.cart[i]);
+                            }
+                            this.itmind = -1;
+                            this.cart = [];
+                            this.cart = temp;
+                            setTimeout(() => {
+                                this.loadingModal.hide();
+                                this.edititemModal.hide();
+                            }, 1000);
+                            Swal.fire("ลบรายการเสร็จสิ้น!", "", "success");
+                        }
+                    });
+                },
+
+                saveitem() {
+                    let qty = parseInt(document.getElementById('edititemqty').value);
+                    if (qty < 1 || document.getElementById('edititemqty').value == '') {
+                        document.getElementById('edititemqty').value = 1;
+                        document.getElementById('edititemqty').focus();
+                        Swal.fire('ผิดพลาด', 'กรอกจำนวนไม่ถูกต้อง', 'error');
+                    } else {
+                        this.loadingModal.show();
+                        this.item.qty = qty;
+                        setTimeout(() => {
+                            this.loadingModal.hide();
+                            this.edititemModal.hide();
+                        }, 1000);
+                    }
+                },
+
+                edittiem(item, index) {
+                    this.itmind = index;
+                    this.item = item;
+                    this.edititemModal.show();
+                    setTimeout(() => { document.getElementById('edititemqty').value = this.item.qty }, 500);
+                },
+
+                additem() {
+                    let qty = parseInt(document.getElementById('newitemqty').value);
+                    if (qty < 1 || document.getElementById('newitemqty').value == '') {
+                        document.getElementById('newitemqty').value = 1;
+                        document.getElementById('newitemqty').focus();
+                        Swal.fire('ผิดพลาด', 'กรอกจำนวนไม่ถูกต้อง', 'error');
+                    } else {
+                        let item = {
+                            id: this.product.id,
+                            categ: this.product.categ,
+                            title: this.product.title,
+                            detail: this.product.detail,
+                            options: this.product.sltoption,
+                            price: this.product.sltprice,
+                            qty: qty,
+                            shippingrate: this.product.shippingrate,
+                            imgid: this.product.imgid
+                        }
+                        this.loadingModal.show();
+                        this.cart.push(item);
+                        setTimeout(() => {
+                            this.loadingModal.hide();
+                            this.newitemModal.hide();
+                            this.productModal.hide();
+                        }, 1000);
+                    }
+                },
+
+                newitem(sltoption, sltprice) {
+                    this.product.sltoption = sltoption;
+                    this.product.sltprice = sltprice;
+                    this.newitemModal.show();
+                    setTimeout(() => { document.getElementById('newitemqty').value = 1 }, 500);
+                },
+
+                selectproduct(item) {
+                    this.product = item;
+                    this.product.optflv = (this.product.flavors.length > 0) ? true : false;
+                    this.product.optpkg = (this.product.packages.length > 0) ? true : false;
+                    this.product.sltoption = "";
+                    this.product.sltprice = 0;
+                    this.productModal.show();
+                    // console.log(this.product);
+                },
+
+                selectcateg(categ) {
+                    this.categ = categ;
+                },
+
+                selectpage(page) {
+                    this.page = parseInt(page);
+                },
+
+                getuserid(userid, profile) {
+                    // console.log([userid, profile]);
+                    this.userid = userid;
+                    this.profile = profile;
+                },
+
+                setFormat(number) {
+                    return new Intl.NumberFormat("en-US", {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    }).format(number);
+                },
+
+                initfn() {
+                    this.loadingModal = new bootstrap.Modal('#loadingModal', {});
+                    this.productModal = new bootstrap.Modal('#productModal', {});
+                    this.newitemModal = new bootstrap.Modal('#newitemModal', {});
+                    this.edititemModal = new bootstrap.Modal('#edititemModal', {});
+                    this.loadingModal.show();
+                    let raw = {
+                        userid: this.userid
+                    };
+
+                    let requestOptions = {
+                        method: "POST",
+                        redirect: "follow",
+                        headers: { "Content-Type": "text/plain; charset=utf-8" },
+                        body: JSON.stringify(raw)
+                    };
+
+                    fetch(this.apiURL, requestOptions)
+                        .then((response) => response.json())
+                        .then((result) => {
+                            console.log(result);
+                            setTimeout(() => { this.loadingModal.hide() }, 300);
+                            this.categories = result.categories;
+                            this.products = result.products;
+                            this.shipping = result.shipping;
+
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition((position) => {
+                                    this.lat = position.coords.latitude;
+                                    this.lng = position.coords.longitude;
+                                });
+                            }
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                            Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
+                                .then(() => {
+                                    // liff.closeWindow();
+                                })
+                                .catch((err) => {
+                                    // liff.closeWindow();
+                                });
+                        });
+                }
+
+            },
+            computed: {
+                gettotal() {
+                    let temp = 0;
+                    this.cart.forEach(row => {
+                        temp += (row.qty * row.price);
+                    });
+                    return temp;
+                },
+
+                entrycart() {
+                    return this.cart.length < 1 ? true : false;
+                },
+
+                getcities() {
+                    let cities = [...new Set(this.shipping.map(row => row.city))];
+                    return cities;
+                },
+
+                getProducts() {
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    return this.products.filter(row => (this.categ == 'all' || row.categ == this.categ));
+                }
+
+            },
+            mounted() {
+                this.initfn();
+            },
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
