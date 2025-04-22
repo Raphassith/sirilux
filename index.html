@@ -196,9 +196,9 @@
                                 </thead>
                                 <tbody>
                                     <tr v-for="(item, index) in product.packages" style="cursor: pointer;"
-                                        @click="newitem('ขนาด '+item.size+' กรัม',item.price+product.prices)">
+                                        @click="newitem('ขนาด '+setFormat(item.size)+' กรัม',item.price+product.prices)">
                                         <th scope="row">{{index+1}}</th>
-                                        <td>{{item.size}}</td>
+                                        <td>{{setFormat(item.size)}} กรัม</td>
                                         <td class="text-end">{{setFormat(item.price+product.prices)}}</td>
                                         <td>บาท</td>
                                     </tr>
@@ -308,12 +308,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body g-3">
-
-                        <div class="mb-3">
-                            <label for="address" class="form-label">ที่อยู่ (สำหรับจัดส่ง)</label>
-                            <textarea class="form-control" id="address" rows="3" v-model="checkout.address"></textarea>
-                        </div>
-
+                        <h4 class="form-label">ข้อมูลสำหรับการจัดส่ง</h4>
                         <div class="mb-3">
                             <label for="city" class="form-label">จังหวัด</label>
                             <select class="form-select" id="city" v-model="checkout.city">
@@ -340,8 +335,13 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">ราคารวมค่าจัดส่ง</label>
+                        <div class="mb-4">
+                            <label for="address" class="form-label">อธิบายเพิ่มเติมเกี่ยวกับสถานที่จัดส่ง</label>
+                            <textarea class="form-control" id="address" rows="3" v-model="checkout.address"></textarea>
+                        </div>
+
+                        <h4 class="form-label">ราคารวมค่าจัดส่ง</h4>
+                        <div class="mb-4">
                             <table class="table">
                                 <thead>
                                     <tr>
@@ -373,8 +373,9 @@
                             </table>
                         </div>
 
+                        <h4 class="form-label">ข้อมูลผู้สั่งซื้อ</h4>
                         <div class="mb-3">
-                            <label for="username" class="form-label">ชื่อลูกค้า</label>
+                            <label for="username" class="form-label">ชื่อผู้สั่ง</label>
                             <input type="text" class="form-control" id="username" v-model="checkout.username" />
                         </div>
 
@@ -508,21 +509,25 @@
                     this.checkoutModal.show();
 
                     setTimeout(() => {
-                        this.checkout.map = new L.map('map').setView([this.checkout.lat, this.checkout.lng], 17)
-                            .on("click", this.getMapCenter)
-                            .on("move", this.getMapCenter)
-                            .on("movestart", this.getMapCenter)
-                            .on("moveend", this.getMapCenter);
+                        try {
+                            this.checkout.map = new L.map('map').setView([this.checkout.lat, this.checkout.lng], 17)
+                                .on("click", this.getMapCenter)
+                                .on("move", this.getMapCenter)
+                                .on("movestart", this.getMapCenter)
+                                .on("moveend", this.getMapCenter);
 
-                        this.checkout.marker = new L.marker(this.checkout.map.getCenter())
-                            .bindPopup('Hello Leaflet')
-                            .on("click", () => { alert('Hello World') })
-                            .addTo(this.checkout.map);
+                            this.checkout.marker = new L.marker(this.checkout.map.getCenter())
+                                .bindPopup('Hello Leaflet')
+                                .on("click", () => { alert('Hello World') })
+                                .addTo(this.checkout.map);
 
-                        let tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '© OpenStreetMap'
-                        }).addTo(this.checkout.map);
+                            let tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '© OpenStreetMap'
+                            }).addTo(this.checkout.map);
+                        } catch (e) {
+                            // not think.
+                        }
                     }, 1000);
                 },
 
