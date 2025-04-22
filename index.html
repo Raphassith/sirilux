@@ -334,9 +334,10 @@
                             <label class="form-label">แผนที่</label>
                             <div class="d-flex justify-content-center mb-3">
                                 <div id="map"></div>
-                                <div style="width: 300px;">
-                                    <a class="btn btn-info" @click="setMapHere">ตำแหน่งปัจจุบัน</a>
-                                </div>
+
+                            </div>
+                            <div class="text-center">
+                                <a class="btn btn-info" style="width: 300px;">ตำแหน่งปัจจุบัน</a>
                             </div>
                         </div>
 
@@ -489,11 +490,6 @@
                         phone: this.checkout.phone,
                         note: this.checkout.note
                     };
-                },
-
-                setMapHere() {
-                    this.checkout.map.setView([this.checkout.lat, this.checkout.lng], 17);
-                    this.getMapCenter();
                 },
 
                 getMapCenter() {
@@ -684,6 +680,7 @@
                             this.lng = position.coords.longitude;
                             this.checkout.lat = position.coords.latitude;
                             this.checkout.lng = position.coords.longitude;
+                            console.log([position.coords.latitude, position.coords.longitude])
                         });
                     }
 
