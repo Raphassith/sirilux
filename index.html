@@ -337,7 +337,7 @@
 
                             </div>
                             <div class="text-center">
-                                <a class="btn btn-info" style="width: 300px;">ตำแหน่งปัจจุบัน</a>
+                                <a class="btn btn-info" style="width: 300px;" @click="getMapHere">ตำแหน่งปัจจุบัน</a>
                             </div>
                         </div>
 
@@ -490,6 +490,11 @@
                         phone: this.checkout.phone,
                         note: this.checkout.note
                     };
+                },
+
+                getMapHere() {
+                    this.checkout.map.setView([this.checkout.lat, this.checkout.lng], 17);
+                    this.getMapCenter();
                 },
 
                 getMapCenter() {
@@ -680,8 +685,9 @@
                             this.lng = position.coords.longitude;
                             this.checkout.lat = position.coords.latitude;
                             this.checkout.lng = position.coords.longitude;
-                            console.log([position.coords.latitude, position.coords.longitude])
                         });
+                    } else {
+                        console.log('Connot this get Location.');
                     }
 
                     let raw = {
