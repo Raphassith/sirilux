@@ -15,8 +15,17 @@
         integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+"
         crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.6/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.3.3/dist/sweetalert2.all.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+        integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+        crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+        integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+        crossorigin=""></script>
+
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         *::-webkit-scrollbar {
@@ -26,6 +35,11 @@
         * {
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+
+        #map {
+            width: 300px;
+            height: 300px;
         }
     </style>
 </head>
@@ -62,6 +76,7 @@
                         </div>
                         <div class="px-1">
                             <h5 class="card-title">{{item.title}}</h5>
+                            <div class="mb-4">{{item.detail}}</div>
                         </div>
                     </div>
                     <a class="btn btn-info" style="position: absolute; bottom: 5px; right: 5px;"
@@ -102,7 +117,7 @@
             </table>
             <div class="text-end">
                 <a v-if="entrycart" class="btn btn-info disabled me-2" aria-disabled="true">ยืนยันคำสั่งซื้อ</a>
-                <a v-else class="btn btn-info me-2">ยืนยันคำสั่งซื้อ</a>
+                <a v-else class="btn btn-info me-2" @click="chkoutfrm">ยืนยันคำสั่งซื้อ</a>
 
                 <a v-if="entrycart" class="btn btn-danger disabled" aria-disabled="true">ยกเลิกรายการทั้งหมด</a>
                 <a v-else class="btn btn-danger" @click="clearcart">ยกเลิกรายการทั้งหมด</a>
@@ -137,7 +152,7 @@
             aria-labelledby="productModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header bg-info">
                         <h1 class="modal-title fs-5" id="productModalLabel">{{product.title}}</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -191,7 +206,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer bg-light">
                         <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
                     </div>
                 </div>
@@ -283,6 +298,77 @@
             </div>
         </div>
 
+        <!-- checkoutModal -->
+        <div class="modal fade" id="checkoutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="ccheckoutModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header bg-info">
+                        <h1 class="modal-title fs-5" id="checkoutModalLabel">ยืนยันคำสั่งซื้อ</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body g-3">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">ชื่อลูกค้า</label>
+                            <input type="text" class="form-control" id="username" v-model="checkout.username" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">โทรศัพท์</label>
+                            <input type="tel" class="form-control" id="phone" v-model="checkout.phone" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="chkoutdate" class="form-label">วันที่จัดส่ง</label>
+                            <input type="date" class="form-control" id="chkoutdate" :min="mindate"
+                                v-model="checkout.date" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="time" class="form-label">เวลา</label>
+                            <select class="form-select" id="time" v-model="checkout.time">
+                                <option value="" disabled> -- เลือกเวลา -- </option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">ที่อยู่</label>
+                            <textarea class="form-control" id="address" rows="3" v-model="checkout.address"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="city" class="form-label">จังหวัด</label>
+                            <select class="form-select" id="city" v-model="checkout.city">
+                                <option value="" disabled> -- เลือกจังหวัด -- </option>
+                                <option v-for="item in getcities" :value="item">{{item}}</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="zone" class="form-label">อำเภอ/เขต</label>
+                            <select class="form-select" id="zone" v-model="checkout.zone">
+                                <option value="" disabled> -- เลือกอำเภอ/เขต -- </option>
+                                <option v-for="item in getzones" :value="item">{{item}}</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-center mb-3">
+                            <div id="map"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="note" class="form-label">หมายเหตุ</label>
+                            <textarea class="form-control" id="note" rows="3" v-model="checkout.note"></textarea>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- loadingModal -->
         <div class="modal fade" id="loadingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
             aria-labelledby="loadingModalLabel" aria-hidden="true">
@@ -301,7 +387,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -314,6 +399,8 @@
                     productModal: null,
                     newitemModal: null,
                     edititemModal: null,
+                    checkoutModal: null,
+                    mindate: "",
                     lat: 0,
                     lng: 0,
                     page: 1,
@@ -326,13 +413,70 @@
                     item: {},
                     itmind: -1,
                     shipping: [],
-                    form: {
-
+                    checkout: {
+                        map: null,
+                        marker: null,
+                        username: "",
+                        date: "",
+                        time: "",
+                        adderss: "",
+                        city: "",
+                        zone: "",
+                        lat: 0,
+                        lng: 0,
+                        phone: "",
+                        note: ""
                     },
 
                 }
             },
             methods: {
+                saveorder() {
+                    let raw = {
+                        userid: this.userid,
+                        username: this.checkout.username,
+                        date: this.checkout.date,
+                        time: this.checkout.time,
+                        adderss: this.checkout.adderss,
+                        city: this.checkout.city,
+                        zone: this.checkout.zone,
+                        lat: this.checkout.lat,
+                        lng: this.checkout.lng,
+                        phone: this.checkout.phone,
+                        note: this.checkout.note
+                    };
+                },
+
+                getMapCenter() {
+                    // console.log(map.getCenter());
+                    this.checkout.lat = this.checkout.map.getCenter().lat;
+                    this.checkout.lng = this.checkout.map.getCenter().lng;
+                    this.checkout.marker.setLatLng(this.checkout.map.getCenter());
+                    // console.log('Lat: ' + this.checkout.lat + ", Long: " + this.checkout.lng);
+                },
+
+                chkoutfrm() {
+                    this.checkoutModal.show();
+
+                    setTimeout(() => {
+                        this.checkout.map = new L.map('map').setView([this.checkout.lat, this.checkout.lng], 17)
+                            .on("click", this.getMapCenter)
+                            .on("move", this.getMapCenter)
+                            .on("movestart", this.getMapCenter)
+                            .on("moveend", this.getMapCenter);
+
+                        this.checkout.marker = new L.marker(this.checkout.map.getCenter())
+                            .bindPopup('Hello Leaflet')
+                            .on("click", () => { alert('Hello World') })
+                            .addTo(this.checkout.map);
+
+                        let tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap'
+                        }).addTo(this.checkout.map);
+                    }, 1000);
+                },
+
                 clearcart() {
                     Swal.fire({
                         title: "ยืนยันการลบรายการทั้งหมดในตะกร้า ?",
@@ -476,7 +620,24 @@
                     this.productModal = new bootstrap.Modal('#productModal', {});
                     this.newitemModal = new bootstrap.Modal('#newitemModal', {});
                     this.edititemModal = new bootstrap.Modal('#edititemModal', {});
+                    this.checkoutModal = new bootstrap.Modal('#checkoutModal', {});
+
                     this.loadingModal.show();
+
+                    let d = new Date();
+                    d.setDate(d.getDate() + 1);
+                    this.mindate = d.getFullYear() + "-" + ("0" + (parseInt(d.getMonth()) + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+                    this.checkout.date = d.getFullYear() + "-" + ("0" + (parseInt(d.getMonth()) + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((position) => {
+                            this.lat = position.coords.latitude;
+                            this.lng = position.coords.longitude;
+                            this.checkout.lat = position.coords.latitude;
+                            this.checkout.lng = position.coords.longitude;
+                        });
+                    }
+
                     let raw = {
                         userid: this.userid
                     };
@@ -496,13 +657,6 @@
                             this.categories = result.categories;
                             this.products = result.products;
                             this.shipping = result.shipping;
-
-                            if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition((position) => {
-                                    this.lat = position.coords.latitude;
-                                    this.lng = position.coords.longitude;
-                                });
-                            }
                         })
                         .catch((error) => {
                             console.log(error);
@@ -518,6 +672,19 @@
 
             },
             computed: {
+                getzonerate() {
+                    let shippingprice = 0;
+                    let rates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    let zones = this.shipping.filter(row => (row.city == this.checkout.city && row.zone == this.checkout.zone));
+                    if (zones.length > 0) rates = zones[0].rates;
+                    console.log(rates);
+                    console.log(this.cart);
+                    this.cart.forEach(row => {
+                        shippingprice = rates[row.shippingrate] > shippingprice ? rates[row.shippingrate] : shippingprice;
+                    });
+                    console.log(shippingprice);
+                },
+
                 gettotal() {
                     let temp = 0;
                     this.cart.forEach(row => {
@@ -533,6 +700,12 @@
                 getcities() {
                     let cities = [...new Set(this.shipping.map(row => row.city))];
                     return cities;
+                },
+
+                getzones() {
+                    this.checkout.zone = "";
+                    let zones = [...new Set(this.shipping.filter(row => row.city == this.checkout.city).map(row => row.zone))];
+                    return zones;
                 },
 
                 getProducts() {
