@@ -337,7 +337,8 @@
 
                         <div class="mb-4">
                             <label for="address" class="form-label">อธิบายเพิ่มเติมเกี่ยวกับสถานที่จัดส่ง</label>
-                            <textarea class="form-control" id="address" rows="3" v-model="checkout.address"></textarea>
+                            <textarea class="form-control" id="address" rows="3"
+                                v-model.trim="checkout.address"></textarea>
                         </div>
 
                         <h4 class="form-label">ราคารวมค่าจัดส่ง</h4>
@@ -376,12 +377,17 @@
                         <h4 class="form-label">ข้อมูลผู้สั่งซื้อ</h4>
                         <div class="mb-3">
                             <label for="username" class="form-label">ชื่อผู้สั่ง</label>
-                            <input type="text" class="form-control" id="username" v-model="checkout.username" />
+                            <input type="text" class="form-control" id="username" v-model.trim="checkout.username" />
                         </div>
 
                         <div class="mb-3">
                             <label for="phone" class="form-label">โทรศัพท์</label>
-                            <input type="tel" class="form-control" id="phone" v-model="checkout.phone" />
+                            <input type="tel" class="form-control" id="phone" v-model.trim="checkout.phone" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone2" class="form-label">โทรศัพท์ (สำรอง ถ้ามี)</label>
+                            <input type="tel" class="form-control" id="phone2" v-model="checkout.phone2" />
                         </div>
 
                         <div class="mb-3">
@@ -394,16 +400,42 @@
                             <label for="time" class="form-label">เวลา</label>
                             <select class="form-select" id="time" v-model="checkout.time">
                                 <option value="" disabled> -- เลือกเวลา -- </option>
+                                <option value="00:00:00">00.00 น.</option>
+                                <option value="00:00:00">01.00 น.</option>
+                                <option value="00:00:00">02.00 น.</option>
+                                <option value="00:00:00">03.00 น.</option>
+                                <option value="00:00:00">04.00 น.</option>
+                                <option value="00:00:00">05.00 น.</option>
+                                <option value="00:00:00">06.00 น.</option>
+                                <option value="00:00:00">07.00 น.</option>
+                                <option value="00:00:00">08.00 น.</option>
+                                <option value="00:00:00">09.00 น.</option>
+                                <option value="00:00:00">10.00 น.</option>
+                                <option value="00:00:00">11.00 น.</option>
+                                <option value="00:00:00">12.00 น.</option>
+                                <option value="00:00:00">13.00 น.</option>
+                                <option value="00:00:00">14.00 น.</option>
+                                <option value="00:00:00">15.00 น.</option>
+                                <option value="00:00:00">16.00 น.</option>
+                                <option value="00:00:00">17.00 น.</option>
+                                <option value="00:00:00">18.00 น.</option>
+                                <option value="00:00:00">19.00 น.</option>
+                                <option value="00:00:00">20.00 น.</option>
+                                <option value="00:00:00">21.00 น.</option>
+                                <option value="00:00:00">22.00 น.</option>
+                                <option value="00:00:00">23.00 น.</option>
                             </select>
                         </div>
 
                         <div class="mb-3">
                             <label for="note" class="form-label">หมายเหตุ</label>
-                            <textarea class="form-control" id="note" rows="3" v-model="checkout.note"></textarea>
+                            <textarea class="form-control" id="note" rows="3" v-model.trim="checkout.note"></textarea>
                         </div>
 
                     </div>
                     <div class="modal-footer bg-light">
+                        <a v-if="cansaveorder" class="btn btn-info" @click="saveorder">ยืนยัน</a>
+                        <a v-else class="btn btn-info disabled">ยืนยัน</a>
                         <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
                     </div>
                 </div>
@@ -445,7 +477,8 @@
                     lat: 0,
                     lng: 0,
                     page: 1,
-                    userid: 'A001',
+                    userid: "U001",
+                    profile: "",
                     categories: [],
                     categ: "all",
                     products: [],
@@ -468,6 +501,7 @@
                         lat: 0,
                         lng: 0,
                         phone: "",
+                        phone2: "",
                         note: ""
                     },
 
@@ -477,6 +511,7 @@
                 saveorder() {
                     let raw = {
                         userid: this.userid,
+                        profile: this.profile,
                         total: this.checkout.total,
                         shippingprice: this.checkout.shippingprice,
                         username: this.checkout.username,
@@ -488,8 +523,34 @@
                         lat: this.checkout.lat,
                         lng: this.checkout.lng,
                         phone: this.checkout.phone,
-                        note: this.checkout.note
+                        phone2: this.checkout.phone2,
+                        note: this.checkout.note,
+                        items: this.cart
                     };
+                    console.log(raw);
+                    let requestOptions = {
+                        method: "POST",
+                        redirect: "follow",
+                        headers: { "Content-Type": "text/plain; charset=utf-8" },
+                        body: JSON.stringify(raw)
+                    };
+
+                    fetch(this.apiURL + "?fn=saveorder", requestOptions)
+                        .then((response) => response.json())
+                        .then((result) => {
+                            console.log(result);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                            Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
+                                .then(() => {
+                                    // liff.closeWindow();
+                                })
+                                .catch((err) => {
+                                    // liff.closeWindow();
+                                });
+                        });
+
                 },
 
                 getMapHere() {
@@ -656,17 +717,17 @@
                     this.page = parseInt(page);
                 },
 
-                getuserid(userid, profile) {
-                    // console.log([userid, profile]);
-                    this.userid = userid;
-                    this.profile = profile;
-                },
-
                 setFormat(number) {
                     return new Intl.NumberFormat("en-US", {
                         minimumFractionDigits: 0,
                         maximumFractionDigits: 0,
                     }).format(number);
+                },
+
+                getuserid(userid, profile) {
+                    // console.log([userid, profile]);
+                    this.userid = userid;
+                    this.profile = profile;
                 },
 
                 initfn() {
@@ -708,7 +769,7 @@
                     fetch(this.apiURL, requestOptions)
                         .then((response) => response.json())
                         .then((result) => {
-                            console.log(result);
+                            // console.log(result);
                             setTimeout(() => { this.loadingModal.hide() }, 300);
                             this.categories = result.categories;
                             this.products = result.products;
@@ -728,6 +789,10 @@
 
             },
             computed: {
+                cansaveorder() {
+                    return (this.userid != "" && this.checkout.city != "" && this.checkout.zone != "" && this.checkout.username != "" && this.checkout.phone != "" && this.checkout.date != "" && this.checkout.time != "") ? true : false;
+                },
+
                 getshippingprice() {
                     let shippingprice = 0;
                     let rates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
