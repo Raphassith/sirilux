@@ -126,7 +126,48 @@
 
         <!-- orders page -->
         <div v-if="page==3" class="container-fluid" style="margin-top: 60px; margin-bottom: 60px;">
-
+            <div v-for="(oritem, orindex) in orders" class="mt-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{oritem.id}}</h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">{{oritem.date}}</h6>
+                        <p class="card-text">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">รายการ</th>
+                                    <th scope="col" class="text-center">จำนวน</th>
+                                    <th scope="col" class="text-end">ราคา</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in oritem.items">
+                                    <th scope="row">{{index+1}}</th>
+                                    <td>{{item.title}}</td>
+                                    <td class="text-center">{{item.qty}}</td>
+                                    <td class="text-end">{{setFormat(item.qty*item.price)}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">รวม</th>
+                                    <td class="text-end">{{setFormat(oritem.total)}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">ค่าจัดส่ง</th>
+                                    <td class="text-end">{{setFormat(oritem.shippingprice)}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">สุทธิ</th>
+                                    <td class="text-end">{{setFormat(oritem.total+oritem.shippingprice)}}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Navbar Bottom -->
@@ -487,6 +528,8 @@
                     item: {},
                     itmind: -1,
                     shipping: [],
+                    orders: [],
+                    order: {},
                     checkout: {
                         map: null,
                         marker: null,
@@ -495,7 +538,7 @@
                         username: "",
                         date: "",
                         time: "",
-                        adderss: "",
+                        address: "",
                         city: "",
                         zone: "",
                         lat: 0,
@@ -508,7 +551,40 @@
                 }
             },
             methods: {
+                getorder() {
+                    let raw = {
+                        userid: this.userid
+                    };
+                    // console.log(raw);
+                    let requestOptions = {
+                        method: "POST",
+                        redirect: "follow",
+                        headers: { "Content-Type": "text/plain; charset=utf-8" },
+                        body: JSON.stringify(raw)
+                    };
+
+                    fetch(this.apiURL + "?fn=getorders", requestOptions)
+                        .then((response) => response.json())
+                        .then((result) => {
+
+                            this.orders = result;
+                            console.log(this.orders);
+                        })
+                        .catch((error) => {
+                            console.log(error);
+                            Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
+                                .then(() => {
+                                    // liff.closeWindow();
+                                })
+                                .catch((err) => {
+                                    // liff.closeWindow();
+                                });
+                        });
+                },
+
                 saveorder() {
+                    this.loadingModal.show();
+
                     let raw = {
                         userid: this.userid,
                         profile: this.profile,
@@ -517,7 +593,7 @@
                         username: this.checkout.username,
                         date: this.checkout.date,
                         time: this.checkout.time,
-                        adderss: this.checkout.adderss,
+                        address: this.checkout.address,
                         city: this.checkout.city,
                         zone: this.checkout.zone,
                         lat: this.checkout.lat,
@@ -527,7 +603,7 @@
                         note: this.checkout.note,
                         items: this.cart
                     };
-                    console.log(raw);
+
                     let requestOptions = {
                         method: "POST",
                         redirect: "follow",
@@ -539,9 +615,15 @@
                         .then((response) => response.json())
                         .then((result) => {
                             console.log(result);
+                            this.getorder();
+                            this.cart = [];
+                            this.checkoutModal.hide();
+                            setTimeout(() => { this.loadingModal.hide() }, 300);
+                            Swal.fire('เสร็จสิ้น', 'ดำเนินการเสร็จสิ้น', 'success')
                         })
                         .catch((error) => {
                             console.log(error);
+                            setTimeout(() => { this.loadingModal.hide() }, 300);
                             Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
                                 .then(() => {
                                     // liff.closeWindow();
@@ -728,6 +810,7 @@
                     // console.log([userid, profile]);
                     this.userid = userid;
                     this.profile = profile;
+                    this.getorder();
                 },
 
                 initfn() {
@@ -738,6 +821,8 @@
                     this.checkoutModal = new bootstrap.Modal('#checkoutModal', {});
 
                     this.loadingModal.show();
+
+                    this.getorder();
 
                     let d = new Date();
                     d.setDate(d.getDate() + 1);
