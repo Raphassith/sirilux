@@ -925,6 +925,25 @@
                 this.initfn();
             },
         }).mount('#app');
+
+        liff.init({ liffId: "2007095562-4Wq7GJY8" }, () => {
+            if (!liff.isLoggedIn()) {
+                let destinationUrl = window.location.href;
+                liff.login({ redirectUri: destinationUrl });
+            } else {
+                liff.getProfile()
+                    .then((profile) => {
+                        app.getuserid(profile.userId, profile.pictureUrl);
+                    })
+                    .catch((err) => {
+                        Swal.fire('ผิดพลาด', 'ระบบทำงานผิดพลาด', 'error')
+                            .then(date => {
+                                liff.closeWindow();
+                            });
+                        console.log("error", err);
+                    });
+            }
+        });
     </script>
 </body>
 
