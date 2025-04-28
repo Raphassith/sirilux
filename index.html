@@ -637,6 +637,9 @@
                             this.checkoutModal.hide();
                             setTimeout(() => { this.loadingModal.hide() }, 300);
                             Swal.fire('เสร็จสิ้น', 'ดำเนินการเสร็จสิ้น', 'success')
+                                .then(() => {
+                                    this.selectpage(3);
+                                });
                         })
                         .catch((error) => {
                             console.log(error);
