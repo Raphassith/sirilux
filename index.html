@@ -615,6 +615,23 @@
                         .then((response) => response.json())
                         .then((result) => {
                             console.log(result);
+                            if (result.result) {
+                                let message = "รายการเลขที่: " + result.id + "\n";
+
+                                this.cart.forEach(row => {
+                                    message += row.title + " " + row.options + " => " + row.qty + "\n";
+                                });
+                                message += "สถานที่: " + this.checkout.city + " " + this.checkout.zone + "\n";
+                                message += "วันที่: " + this.checkout.date + "\nเวลา: " + this.checkout.time + "\n";
+                                message += "ผู้สั่ง: " + this.checkout.username + "\nโทร: " + this.checkout.phone
+
+                                liff.sendMessages([
+                                    {
+                                        type: "text",
+                                        text: message,
+                                    },
+                                ])
+                            }
                             this.getorder();
                             this.cart = [];
                             this.checkoutModal.hide();
@@ -624,15 +641,8 @@
                         .catch((error) => {
                             console.log(error);
                             setTimeout(() => { this.loadingModal.hide() }, 300);
-                            Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
-                                .then(() => {
-                                    // liff.closeWindow();
-                                })
-                                .catch((err) => {
-                                    // liff.closeWindow();
-                                });
+                            Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error');
                         });
-
                 },
 
                 getMapHere() {
