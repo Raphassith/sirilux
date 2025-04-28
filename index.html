@@ -864,10 +864,10 @@
                             console.log(error);
                             Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
                                 .then(() => {
-                                    // liff.closeWindow();
+                                    liff.closeWindow();
                                 })
                                 .catch((err) => {
-                                    // liff.closeWindow();
+                                    liff.closeWindow();
                                 });
                         });
                 }
