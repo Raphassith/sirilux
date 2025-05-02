@@ -142,6 +142,14 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr>
+                                    <th scope="col" colspan="3">
+                                        <img v-for="(item, index) in oritem.items"
+                                            :src="'https://lh3.googleusercontent.com/d/'+item.imgid" class="mx-1" />
+                                    </th>
+                                    <td class="text-end">{{setFormat(oritem.total)}}</td>
+                                </tr>
+
                                 <tr v-for="(item, index) in oritem.items">
                                     <th scope="row">{{index+1}}</th>
                                     <td>{{item.title}}</td>
