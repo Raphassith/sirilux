@@ -143,9 +143,10 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th scope="col" colspan="3">
+                                    <th scope="col" colspan="3" style="overflow-x: auto;">
                                         <img v-for="(item, index) in oritem.items"
-                                            :src="'https://lh3.googleusercontent.com/d/'+item.imgid" class="mx-1" />
+                                            :src="'https://lh3.googleusercontent.com/d/'+item.imgid" class="mx-1"
+                                            style="width: 30px; height: 30px; object-fit: cover;" />
                                     </th>
                                     <td class="text-end">{{setFormat(oritem.total)}}</td>
                                 </tr>
