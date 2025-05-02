@@ -142,17 +142,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <th scope="col" colspan="3" style="overflow-x: auto;">
-                                        <img v-for="(item, index) in oritem.items"
-                                            :src="'https://lh3.googleusercontent.com/d/'+item.imgid" class="mx-1"
-                                            style="width: 30px; height: 30px; object-fit: cover;" />
-                                    </th>
-                                    <td class="text-end">{{setFormat(oritem.total)}}</td>
-                                </tr>
-
                                 <tr v-for="(item, index) in oritem.items">
-                                    <th scope="row">{{index+1}}</th>
+                                    <th scope="row"><img :src="'https://lh3.googleusercontent.com/d/'+item.imgid"
+                                            style="width: 30px; height: 30px; object-fit: cover;" /></th>
                                     <td>{{item.title}}</td>
                                     <td class="text-center">{{item.qty}}</td>
                                     <td class="text-end">{{setFormat(item.qty*item.price)}}</td>
