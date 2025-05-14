@@ -202,7 +202,50 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-
+                        <h3>เลขที่สั่งซื้อ: {{order.id}}</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">รายการ</th>
+                                    <th scope="col" class="text-center">จำนวน</th>
+                                    <th scope="col" class="text-end">ราคา</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in order.items">
+                                    <th scope="row"><img :src="'https://lh3.googleusercontent.com/d/'+item.imgid"
+                                            style="width: 30px; height: 30px; object-fit: cover;" /></th>
+                                    <td>{{item.title}}</td>
+                                    <td class="text-center">{{item.qty}}</td>
+                                    <td class="text-end">{{setFormat(item.qty*item.price)}}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">รวม</th>
+                                    <td class="text-end">{{setFormat(order.total)}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">ค่าจัดส่ง</th>
+                                    <td class="text-end">{{setFormat(order.shippingprice)}}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col" colspan="3" class="text-end">สุทธิ</th>
+                                    <td class="text-end">{{setFormat(order.total+order.shippingprice)}}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="card">
+                            <div class="card-body">
+                                <h4>ข้อมูลสำหรับการจัดส่ง</h4>
+                                <div>ลุกค้า: {{order.username}}</div>
+                                <div>จังหวัด: {{order.city}}</div>
+                                <div>เขต/อำเภอ: {{order.zone}}</div>
+                                <div style="white-space: pre-wrap;">ที่อยู่: {{order.address}}</div>
+                                <div>วันที่: {{order.date}} เวลา: {{order.time}}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
