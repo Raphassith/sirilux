@@ -166,6 +166,9 @@
                             </tfoot>
                         </table>
                         </p>
+                        <div class="text-end">
+                            <a class="btn btn-info" @click="selectorder(oritem)">ดูข้อมูล</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -186,6 +189,25 @@
                     <span v-if="page==3" class="badge text-bg-info">สั่งซื้อ</span>
                     <span v-else class="badge text-bg-light">สั่งซื้อ</span>
                 </h1>
+            </div>
+        </div>
+
+        <!-- orderModal -->
+        <div class="modal fade" id="orderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="orderModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="orderModalLabel">รายการสั่ง</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -515,6 +537,7 @@
                     newitemModal: null,
                     edititemModal: null,
                     checkoutModal: null,
+                    orderModal: null,
                     mindate: "",
                     lat: 0,
                     lng: 0,
@@ -552,6 +575,11 @@
                 }
             },
             methods: {
+                selectorder(item) {
+                    this.order = item;
+                    this.orderModal.show();
+                },
+
                 getorder() {
                     this.orders = [];
 
@@ -835,6 +863,7 @@
                     this.newitemModal = new bootstrap.Modal('#newitemModal', {});
                     this.edititemModal = new bootstrap.Modal('#edititemModal', {});
                     this.checkoutModal = new bootstrap.Modal('#checkoutModal', {});
+                    this.orderModal = new bootstrap.Modal('#orderModal', {});
 
                     this.loadingModal.show();
 
