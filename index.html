@@ -578,6 +578,7 @@
                 selectorder(item) {
                     this.order = item;
                     this.orderModal.show();
+                    console.log(this.order);
                 },
 
                 getorder() {
@@ -599,7 +600,7 @@
                         .then((result) => {
 
                             this.orders = result;
-                            console.log(this.orders);
+                            // console.log(this.orders);
                         })
                         .catch((error) => {
                             console.log(error);
