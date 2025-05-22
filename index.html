@@ -41,6 +41,11 @@
             width: 300px;
             height: 300px;
         }
+
+        #map {
+            width: 100%;
+            height: 300px;
+        }
     </style>
 </head>
 
@@ -244,6 +249,28 @@
                                 <div>เขต/อำเภอ: {{order.zone}}</div>
                                 <div style="white-space: pre-wrap;">ที่อยู่: {{order.address}}</div>
                                 <div>วันที่: {{order.date}} เวลา: {{order.time}}</div>
+                                <div class="mb-3">
+                                    สถานะ:
+                                    <span v-if="order.status=='สั่งซื้อ'"
+                                        class="badge rounded-pill text-bg-light">สั่งซื้อ</span>
+                                    <span v-if="order.status=='ชำระเงินแล้ว'"
+                                        class="badge rounded-pill text-bg-primary">ชำระเงินแล้ว</span>
+                                    <span v-if="order.status=='จัดส่ง'"
+                                        class="badge rounded-pill text-bg-info">จัดส่ง</span>
+                                    <span v-if="order.status=='เสร็จสิ้น'"
+                                        class="badge rounded-pill text-bg-success">เสร็จสิ้น</span>
+                                    <span v-if="order.status=='ยกเลิก'"
+                                        class="badge rounded-pill text-bg-secondary">ยกเลิก</span>
+                                    <span v-if="order.status=='ปิดงาน'"
+                                        class="badge rounded-pill text-bg-dark">ปิดงาน</span>
+                                </div>
+                                <div>
+                                    <label class="form-label">แผนที่</label>
+                                    <div class="d-flex justify-content-center mb-1">
+                                        <div id="map2"></div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -727,7 +754,18 @@
                 selectorder(item) {
                     this.order = item;
                     this.orderModal.show();
-                    console.log(this.order);
+                    setTimeout(() => {
+                        try {
+                            this.order.map = new L.map('map2').setView([this.order.lat, this.order.lng], 17);
+                            this.order.marker = new L.marker(this.order.map.getCenter()).addTo(this.order.map);
+                            let tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                maxZoom: 19,
+                                attribution: '© OpenStreetMap'
+                            }).addTo(this.order.map);
+                        } catch (e) {
+                            // not think.
+                        }
+                    }, 1000);
                 },
 
                 getorder() {
@@ -838,11 +876,9 @@
                 },
 
                 getMapCenter() {
-                    // console.log(map.getCenter());
                     this.checkout.lat = this.checkout.map.getCenter().lat;
                     this.checkout.lng = this.checkout.map.getCenter().lng;
                     this.checkout.marker.setLatLng(this.checkout.map.getCenter());
-                    // console.log('Lat: ' + this.checkout.lat + ", Long: " + this.checkout.lng);
                 },
 
                 chkoutfrm() {
