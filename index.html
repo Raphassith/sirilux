@@ -248,6 +248,28 @@
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
+                        <a class="btn btn-info" @click="showchgsqr">QR Code ชำระเงิน</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- chgsQrModal -->
+        <div class="modal fade" id="chgsQrModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="chgsQrModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-info">
+                        <h1 class="modal-title fs-5" id="chgsQrModalLabel">QR Code สำหรับชำระเงิน</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center px-1">
+                        <div class="mb-2">คำสั่งซื้อเลขที่ {{qrpayment.id}}</div>
+                        <img :src="'data:image/png;base64,'+qrpayment.qrbase" style="width: 100%;">
+                        <div class="mt-2">จำนวน {{setFormat(qrpayment.amount)}} บาท</div>
+                    </div>
+                    <div class="modal-footer bg-light">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
                     </div>
                 </div>
@@ -580,6 +602,7 @@
                     newitemModal: null,
                     edititemModal: null,
                     checkoutModal: null,
+                    saveOrderModal: null,
                     orderModal: null,
                     mindate: "",
                     lat: 0,
@@ -614,10 +637,26 @@
                         phone2: "",
                         note: ""
                     },
+                    qrpayment: {
+                        id: "",
+                        amount: 0,
+                        qrbase: "",
+                        qrraw: ""
+                    }
 
                 }
             },
             methods: {
+                showchgsqr() {
+                    this.qrpayment = {
+                        id: this.order.id,
+                        amount: this.order.total + this.order.shippingprice,
+                        qrbase: this.order.qrbase,
+                        qrraw: this.order.qrraw
+                    }
+                    this.chgsQrModal.show();
+                },
+
                 selectorder(item) {
                     this.order = item;
                     this.orderModal.show();
@@ -691,6 +730,9 @@
                         .then((result) => {
                             console.log(result);
                             if (result.result) {
+                                this.qrpayment = result;
+                                this.chgsQrModal.show();
+
                                 let message = "รายการเลขที่: " + result.id + "\n";
 
                                 this.cart.forEach(row => {
@@ -705,6 +747,15 @@
                                         type: "text",
                                         text: message,
                                     },
+                                    {
+                                        type: "text",
+                                        text: "QR CODE สำหรับชำระเงิน",
+                                    },
+                                    {
+                                        type: "image",
+                                        originalContentUrl: "https://api.qrserver.com/v1/create-qr-code/?data=" + result.qrraw,
+                                        previewImageUrl: "https://api.qrserver.com/v1/create-qr-code/?data=" + result.qrraw
+                                    }
                                 ])
                             }
                             this.getorder();
@@ -907,6 +958,7 @@
                     this.newitemModal = new bootstrap.Modal('#newitemModal', {});
                     this.edititemModal = new bootstrap.Modal('#edititemModal', {});
                     this.checkoutModal = new bootstrap.Modal('#checkoutModal', {});
+                    this.chgsQrModal = new bootstrap.Modal('#chgsQrModal', {});
                     this.orderModal = new bootstrap.Modal('#orderModal', {});
 
                     this.loadingModal.show();
