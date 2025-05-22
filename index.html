@@ -248,7 +248,7 @@
                         </div>
                     </div>
                     <div class="modal-footer bg-light">
-                        <a class="btn btn-info" @click="showchgsqr">QR Code ชำระเงิน</a>
+                        <a v-if="order.status=='สั่งซื้อ'" class="btn btn-info" @click="showchgsqr">QR Code ชำระเงิน</a>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
                     </div>
                 </div>
