@@ -329,12 +329,14 @@
                         <div v-if="product.optflv" class="mt-1">
                             <b>เลือกรสชาติ</b>
                             <hr />
-                            <div v-for="(item, index) in product.flavors">
+                            <div v-for="(item, index) in product.flavors" class="mb-2">
                                 <button class="btn btn-info form-control"
                                     @click="newitem('รสชาติ '+item.flavor,item.price+product.prices)">
-                                    <div class="d-flex justify-content-center">
+                                    <div class="d-flex justify-content-between">
                                         <div class="px-1">{{item.flavor}}</div>
-                                        <div class="px-1 text-end">{{setFormat(item.price+product.prices)}} บาท</div>
+                                        <div class="px-1 text-end" style="white-space: nowrap;">
+                                            {{setFormat(item.price+product.prices)}}&nbsp;บาท
+                                        </div>
                                     </div>
                                 </button>
                             </div>
