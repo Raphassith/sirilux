@@ -249,7 +249,9 @@
                     </div>
                     <div class="modal-footer bg-light">
                         <a v-if="order.status=='สั่งซื้อ'" class="btn btn-info" @click="showchgsqr">QR Code ชำระเงิน</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                        <a v-if="order.status=='สั่งซื้อ'" class="btn btn-danger"
+                            @click="cancelroder">ยกเลิกคำสั่งซื้อ</a>
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">ปิด</a>
                     </div>
                 </div>
             </div>
@@ -653,6 +655,7 @@
                 }
             },
             methods: {
+
                 showchgsqr() {
                     this.qrpayment = {
                         id: this.order.id,
@@ -661,6 +664,64 @@
                         qrraw: this.order.qrraw
                     }
                     this.chgsQrModal.show();
+                },
+
+                cancelroder() {
+                    let raw = {
+                        id: this.order.id,
+                        userid: this.userid
+                    };
+
+                    let requestOptions = {
+                        method: "POST",
+                        redirect: "follow",
+                        headers: { "Content-Type": "text/plain; charset=utf-8" },
+                        body: JSON.stringify(raw)
+                    };
+
+                    Swal.fire({
+                        title: "ยืนยันการยกเลิกคำสั่งซื้อเลขที่ " + this.order.id + " ?",
+                        icon: "question",
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: "ยืนยัน",
+                        confirmButtonColor: "#d33",
+                        cancelButtonText: "ปิด"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.loadingModal.show();
+                            fetch(this.apiURL + "?fn=cancelorder", requestOptions)
+                                .then((response) => response.json())
+                                .then((result) => {
+                                    console.log(result);
+                                    if (result.result) {
+                                        this.qrpayment = result;
+                                        this.chgsQrModal.show();
+
+                                        let message = "คำสั่งซื้อเลขที่: " + this.order.id + "\nถูกยกเลิกแล้ว";
+
+                                        liff.sendMessages([
+                                            {
+                                                type: "text",
+                                                text: message
+                                            }
+                                        ])
+                                    }
+                                    this.getorder();
+                                    setTimeout(() => {
+                                        this.loadingModal.hide();
+                                        this.orderModal.hide();
+                                        this.order = {};
+                                    }, 300);
+                                    Swal.fire('เสร็จสิ้น', 'ดำเนินการเสร็จสิ้น', 'success');
+                                })
+                                .catch((error) => {
+                                    console.log(error);
+                                    setTimeout(() => { this.loadingModal.hide() }, 300);
+                                    Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error');
+                                });
+                        }
+                    });
                 },
 
                 selectorder(item) {
@@ -675,7 +736,7 @@
                     let raw = {
                         userid: this.userid
                     };
-                    // console.log(raw);
+
                     let requestOptions = {
                         method: "POST",
                         redirect: "follow",
@@ -739,7 +800,7 @@
                                 this.qrpayment = result;
                                 this.chgsQrModal.show();
 
-                                let message = "รายการเลขที่: " + result.id + "\n";
+                                let message = "คำสั่งซื้อเลขที่: " + result.id + "\n";
 
                                 this.cart.forEach(row => {
                                     message += row.title + " " + row.options + " => " + row.qty + "\n";
@@ -751,12 +812,7 @@
                                 liff.sendMessages([
                                     {
                                         type: "text",
-                                        text: message,
-                                    },
-                                    {
-                                        type: "image",
-                                        originalContentUrl: "https://api.qrserver.com/v1/create-qr-code/?data=" + result.qrraw,
-                                        previewImageUrl: "https://api.qrserver.com/v1/create-qr-code/?data=" + result.qrraw
+                                        text: message
                                     }
                                 ])
                             }
