@@ -752,13 +752,8 @@
                             fetch(this.apiURL + "?fn=cancelorder", requestOptions)
                                 .then((response) => response.json())
                                 .then((result) => {
-                                    console.log(result);
                                     if (result.result) {
-                                        this.qrpayment = result;
-                                        this.chgsQrModal.show();
-
                                         let message = "คำสั่งซื้อเลขที่: " + this.order.id + "\nถูกยกเลิกแล้ว";
-
                                         liff.sendMessages([
                                             {
                                                 type: "text",
@@ -817,18 +812,15 @@
                     fetch(this.apiURL + "?fn=getorders", requestOptions)
                         .then((response) => response.json())
                         .then((result) => {
-
                             this.orders = result;
-                            // console.log(this.orders);
                         })
                         .catch((error) => {
-                            console.log(error);
                             Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error')
                                 .then(() => {
-                                    // liff.closeWindow();
+                                    liff.closeWindow();
                                 })
                                 .catch((err) => {
-                                    // liff.closeWindow();
+                                    liff.closeWindow();
                                 });
                         });
                 },
@@ -865,7 +857,6 @@
                     fetch(this.apiURL + "?fn=saveorder", requestOptions)
                         .then((response) => response.json())
                         .then((result) => {
-                            console.log(result);
                             if (result.result) {
                                 this.qrpayment = result;
                                 this.chgsQrModal.show();
@@ -896,7 +887,6 @@
                                 });
                         })
                         .catch((error) => {
-                            console.log(error);
                             setTimeout(() => { this.loadingModal.hide() }, 300);
                             Swal.fire('Error', 'ไม่สามารถเชื่อมต่อข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง', 'error');
                         });
@@ -1053,7 +1043,6 @@
                     this.product.sltoption = "";
                     this.product.sltprice = 0;
                     this.productModal.show();
-                    // console.log(this.product);
                 },
 
                 selectcateg(categ) {
@@ -1072,7 +1061,6 @@
                 },
 
                 getuserid(userid, profile) {
-                    // console.log([userid, profile]);
                     this.userid = userid;
                     this.profile = profile;
                     this.getorder();
@@ -1121,7 +1109,6 @@
                     fetch(this.apiURL, requestOptions)
                         .then((response) => response.json())
                         .then((result) => {
-                            // console.log(result);
                             setTimeout(() => { this.loadingModal.hide() }, 300);
                             this.categories = result.categories;
                             this.products = result.products;
