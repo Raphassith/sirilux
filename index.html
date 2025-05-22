@@ -249,7 +249,7 @@
                                 <div>เขต/อำเภอ: {{order.zone}}</div>
                                 <div style="white-space: pre-wrap;">ที่อยู่: {{order.address}}</div>
                                 <div>วันที่: {{order.date}} เวลา: {{order.time}}</div>
-                                <div class="mb-3">
+                                <div>
                                     สถานะ:
                                     <span v-if="order.status=='สั่งซื้อ'"
                                         class="badge rounded-pill text-bg-light">สั่งซื้อ</span>
@@ -265,7 +265,7 @@
                                         class="badge rounded-pill text-bg-dark">ปิดงาน</span>
                                 </div>
                                 <div>
-                                    <label class="form-label">แผนที่</label>
+                                    <label class="form-label">แผนที่ :</label>
                                     <div class="d-flex justify-content-center mb-1">
                                         <div id="map2"></div>
                                     </div>
