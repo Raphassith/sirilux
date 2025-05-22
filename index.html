@@ -268,7 +268,7 @@
                         <h3>คำสั่งซื้อเลขที่ {{qrpayment.id}}</h3>
                         <a :href="'https://api.qrserver.com/v1/create-qr-code/?data='+qrpayment.qrraw" target="_blank">
                             <img :src="'https://api.qrserver.com/v1/create-qr-code/?data='+qrpayment.qrraw"
-                                style="width: 100%;">
+                                style="width: 300px;">
                         </a>
                         <h3>จำนวน {{setFormat(qrpayment.amount)}} บาท</h3>
                     </div>
@@ -647,7 +647,7 @@
                         id: "",
                         amount: 0,
                         qrbase: "",
-                        qrraw: ""
+                        qrraw: "001"
                     }
 
                 }
