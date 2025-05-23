@@ -783,12 +783,12 @@
                     this.orderModal.show();
                     setTimeout(() => {
                         try {
-                            this.order.map = new L.map('map2').setView([this.order.lat, this.order.lng], 17);
-                            this.order.marker = new L.marker(this.order.map.getCenter()).addTo(this.order.map);
+                            let map = new L.map('map2').setView([this.order.lat, this.order.lng], 17);
+                            let marker = new L.marker(map.getCenter()).addTo(map);
                             let tiles = new L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                                 maxZoom: 19,
                                 attribution: '© OpenStreetMap'
-                            }).addTo(this.order.map);
+                            }).addTo(map);
                         } catch (e) {
                             // not think.
                         }
