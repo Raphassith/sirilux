@@ -868,7 +868,9 @@
                                 });
                                 message += "สถานที่: " + this.checkout.city + " " + this.checkout.zone + "\n";
                                 message += "วันที่: " + this.checkout.date + "\nเวลา: " + this.checkout.time + "\n";
-                                message += "ผู้สั่ง: " + this.checkout.username + "\nโทร: " + this.checkout.phone
+                                message += "ผู้สั่ง: " + this.checkout.username + "\nโทร: " + this.checkout.phone + "\n";
+                                message += "พิกัดสำหรับจัดส่ง:\n";
+                                message += "https://www.google.com/maps/place/" + this.checkout.lat + "," + this.checkout.lng;
 
                                 liff.sendMessages([
                                     {
