@@ -864,8 +864,11 @@
                                 let message = "คำสั่งซื้อเลขที่: " + result.id + "\n";
 
                                 this.cart.forEach(row => {
-                                    message += row.title + " " + row.options + " => " + row.qty + "\n";
+                                    message += row.title + " " + row.options + " จำนวน " + row.qty + "\n";
                                 });
+                                message += "\nยอดชำระเงินรวม: " + parseInt(this.checkout.total) + parseInt(this.checkout.shippingprice) + " บาท\n";
+                                message += "--------------------\n";
+                                message += "ข้อมูลการจัดส่ง:\n";
                                 message += "สถานที่: " + this.checkout.city + " " + this.checkout.zone + "\n";
                                 message += "วันที่: " + this.checkout.date + "\nเวลา: " + this.checkout.time + "\n";
                                 message += "ผู้สั่ง: " + this.checkout.username + "\nโทร: " + this.checkout.phone + "\n";
